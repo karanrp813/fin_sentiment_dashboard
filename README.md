@@ -24,7 +24,7 @@ This project follows a **Microservices-inspired architecture** with a clear sepa
 1.  **Clone the repository**
     ```bash
     git clone [https://github.com/YOUR_USERNAME/modern-quant.git](https://github.com/YOUR_USERNAME/modern-quant.git)
-    cd modern-quant
+    cd fin_sentiment_dashboard
     ```
 
 2.  **Create Virtual Environment**
