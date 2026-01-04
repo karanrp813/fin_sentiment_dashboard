@@ -2,10 +2,11 @@ import streamlit as st
 import plotly.graph_objects as go
 from scraper import FinancialExtractor
 from sentiment import SentimentAnalyzer
+from database import init_db, save_results, get_recent_sentiment
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="FinBERT Sentiment Dashboard", layout="wide")
-
+init_db()
 # --- LOAD AI MODEL (Cached) ---
 @st.cache_resource
 def load_ai_model():
@@ -61,6 +62,13 @@ if st.button("Run Analysis"):
         
         # Calculate Stats
         sentiment_counts = analyzed_df['sentiment_label'].value_counts()
+        # --- DATABASE SAVE ---
+        new_count = save_results(ticker, analyzed_df)
+        if new_count > 0:
+            st.success(f"✅ Saved {new_count} new articles to the database.")
+        else:
+            st.info("ℹ️ No new articles to save (all duplicates).")
+        # ---------------------
         total_articles = len(analyzed_df)
         pos_count = sentiment_counts.get('positive', 0)
         neg_count = sentiment_counts.get('negative', 0)
@@ -99,6 +107,12 @@ if st.button("Run Analysis"):
         )
     else:
         st.warning("No recent news found for this ticker.")
-
+        st.divider()
+        st.subheader("🗄️ Database History (All Time)")
+        history_df = get_recent_sentiment(ticker)
+        if not history_df.empty:
+            st.dataframe(history_df, use_container_width=True)
+        else:
+            st.write("No history found in database yet.")
 else:
     st.write("👈 Enter a ticker in the sidebar and click 'Run Analysis'")
